@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import axios from "axios";
+import { BrowserRouter } from "react-router-dom";
 
 axios.defaults.baseURL = `${process.env.REACT_APP_API_URL}/api`;
 axios.defaults.headers.post["Content-Type"] =
@@ -11,7 +12,9 @@ axios.defaults.headers.post["Content-Type"] =
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
   document.getElementById("root")
 );
