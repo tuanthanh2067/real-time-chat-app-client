@@ -1,19 +1,18 @@
-import SocketIOClient from "socket.io-client";
 import { useState, useEffect, useContext } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { FaPaperPlane, FaArrowLeft } from "react-icons/fa";
 
 import { UserContext } from "../context/userContext";
+import { SocketContext } from "../context/socketContext";
 
 import Message from "./Message";
 
 export default function ChatRoom() {
-  const socket = SocketIOClient(process.env.REACT_APP_API_URL);
-
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
 
   const { userId } = useContext(UserContext);
+  const socket = useContext(SocketContext);
 
   const history = useHistory();
 
@@ -36,12 +35,12 @@ export default function ChatRoom() {
           { userId: userId, text: text },
         ]);
       });
-    }
 
-    return () => {
-      console.log("disconnect websocket");
-      socket.disconnect();
-    };
+      return () => {
+        console.log("disconnect websocket");
+        socket.disconnect();
+      };
+    }
   }, [socket, id, userId]);
 
   const submitHandler = (e) => {
