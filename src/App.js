@@ -6,6 +6,9 @@ import { SocketProvider } from "./context/socketContext";
 import Home from "./components/Home";
 import ChatRoom from "./components/ChatRoom";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import NotFound from "./components/NotFound";
+
 function App() {
   return (
     <SocketProvider>
@@ -13,7 +16,12 @@ function App() {
         <div className="w-full min-h-screen bg-indigo-900 flex flex-col items-center">
           <Switch>
             <Route path="/" exact component={Home}></Route>
-            <Route path="/room/:id" component={ChatRoom}></Route>
+            <ProtectedRoute
+              path="/room/:id"
+              component={ChatRoom}
+            ></ProtectedRoute>
+
+            <Route component={NotFound} />
           </Switch>
         </div>
       </UserProvider>
