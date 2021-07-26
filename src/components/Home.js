@@ -41,7 +41,6 @@ export default function Home() {
           .post("/user/search", { userId: userId })
           .then((res) => {
             const roomId = res.data.roomId;
-            console.log(roomId);
             if (roomId) {
               history.push(`/room/${roomId}`);
             }
@@ -56,9 +55,7 @@ export default function Home() {
     if (!clicked && started) {
       axios
         .post("/user/stop", { userId: userId })
-        .then(() => {
-          console.log("stopped");
-        })
+        .then(() => {})
         .catch((err) => {
           console.log(err);
         });

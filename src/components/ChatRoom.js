@@ -37,8 +37,7 @@ export default function ChatRoom() {
       });
 
       return () => {
-        console.log("disconnect websocket");
-        socket.disconnect();
+        socket.emit("leave");
       };
     }
   }, [socket, id, userId]);
@@ -46,6 +45,7 @@ export default function ChatRoom() {
   const submitHandler = (e) => {
     e.preventDefault();
 
+    if (message.trim(" ") === "") return;
     socket.emit("message", { message: message });
 
     setMessage("");
@@ -63,12 +63,16 @@ export default function ChatRoom() {
           <FaArrowLeft className="text-gray-100 text-xl" />
         </button>
 
-        <h1 className="font-bold text-2xl text-gray-200 mx-4">Room id: {id}</h1>
+        <h1 className="font-bold text-xl text-gray-200 mx-4">Room id: {id}</h1>
       </div>
 
-      <div className="w-full h-4/5 border-2 border-opacity-30 rounded-xl my-3 hover:border-opacity-60">
-        {messages.forEach((message) => (
-          <Message message={message} />
+      <div className="w-full h-4/5 border-2 border-opacity-30 rounded-xl my-3 hover:border-opacity-60 overflow-y-auto">
+        {messages.map((message, index) => (
+          <Message
+            message={message}
+            key={index}
+            me={message.userId === userId}
+          />
         ))}
       </div>
 
