@@ -1,20 +1,43 @@
-// import SocketIOClient from "socket.io-client";
-import { useEffect } from "react";
+import SocketIOClient from "socket.io-client";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { FaPaperPlane } from "react-icons/fa";
+
+import { UserContext } from "../context/userContext";
 
 import Message from "./Message";
 
 export default function ChatRoom() {
-  // const socket = SocketIOClient(process.env.REACT_APP_API_URL);
+  const socket = SocketIOClient(process.env.REACT_APP_API_URL);
+
+  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([]);
+
+  const { userId } = useContext(UserContext);
 
   let { id } = useParams();
 
-  // useEffect(() => {
-  //   return () => {
-  //     socket.disconnect();
-  //   };
-  // });
+  useEffect(() => {
+    if (userId && id) {
+      socket.emit("join", { userId: userId, roomId: id });
+
+      socket.on("notification", ({ title }) => {
+        setMessages((messages) => [...messages, { userId: "", text: title }]);
+      });
+
+      socket.on("message", ({ userId, text }) => {
+        setMessages((messages) => [
+          ...messages,
+          { userId: userId, text: text },
+        ]);
+      });
+    }
+
+    return () => {
+      console.log("disconnect websocket");
+      socket.disconnect();
+    };
+  }, [socket, id, userId]);
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -27,13 +50,17 @@ export default function ChatRoom() {
       </div>
 
       <div className="w-full h-4/5 border-2 border-opacity-30 rounded-xl my-3 hover:border-opacity-60">
-        <Message />
+        {messages.forEach((message) => (
+          <Message message={message} />
+        ))}
       </div>
 
       <form onSubmit={submitHandler} className="h-16 relative">
         <input
           type="text"
           className="w-full h-full border-2 border-opacity-30 rounded-xl bg-transparent outline-none text-gray-100 pl-3 pr-10 hover:border-opacity-60"
+          onChange={(e) => setMessage(e.target.value)}
+          value={message}
         />
 
         <button

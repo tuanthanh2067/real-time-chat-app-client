@@ -1,13 +1,16 @@
 import { FaUserCircle } from "react-icons/fa";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+
+import { UserContext } from "../context/userContext";
 
 export default function Home() {
   const [counter, setCounter] = useState(0);
   const [clicked, setClicked] = useState(false);
-  const [userId, setUserId] = useState("");
   const [started, setStarted] = useState(false);
+
+  const { userId, setUserId } = useContext(UserContext);
 
   const timer = useRef();
   const history = useHistory();
@@ -26,7 +29,7 @@ export default function Home() {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, [setUserId]);
 
   useEffect(() => {
     setCounter(0);
@@ -103,7 +106,7 @@ export default function Home() {
       <div className="my-5 flex items-center">
         <div className="flex flex-col items-end text-gray-100">
           <h1 className="text-2xl font-bold">Person</h1>
-          <h1 className="text-sm text-gray-400">${userId}</h1>
+          <h1 className="text-sm text-gray-400">{userId}</h1>
         </div>
 
         <div className="mx-2">
