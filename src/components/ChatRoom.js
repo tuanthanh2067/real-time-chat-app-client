@@ -1,7 +1,7 @@
 import SocketIOClient from "socket.io-client";
 import { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
-import { FaPaperPlane } from "react-icons/fa";
+import { useParams, useHistory } from "react-router-dom";
+import { FaPaperPlane, FaArrowLeft } from "react-icons/fa";
 
 import { UserContext } from "../context/userContext";
 
@@ -15,6 +15,8 @@ export default function ChatRoom() {
 
   const { userId } = useContext(UserContext);
 
+  const history = useHistory();
+
   let { id } = useParams();
 
   useEffect(() => {
@@ -22,7 +24,10 @@ export default function ChatRoom() {
       socket.emit("join", { userId: userId, roomId: id });
 
       socket.on("notification", ({ title }) => {
-        setMessages((messages) => [...messages, { userId: "", text: title }]);
+        setMessages((messages) => [
+          ...messages,
+          { userId: "admin", text: title },
+        ]);
       });
 
       socket.on("message", ({ userId, text }) => {
@@ -41,12 +46,25 @@ export default function ChatRoom() {
 
   const submitHandler = (e) => {
     e.preventDefault();
+
+    socket.emit("message", { message: message });
+
+    setMessage("");
+  };
+
+  const leaveHandler = () => {
+    socket.emit("leave");
+    history.push("/");
   };
 
   return (
-    <div className="h-screen w-2/4 text-center overflow-hidden">
-      <div className="h-16 border-2 border-opacity-30 rounded-xl my-3 flex items-center justify-center hover:border-opacity-60">
-        <h1 className="font-bold text-2xl text-gray-200 ">Room id: {id}</h1>
+    <div className="container h-screen text-center overflow-hidden px-3 py-3">
+      <div className="h-16 border-2 border-opacity-30 rounded-xl my-3 flex items-center justify-between hover:border-opacity-60">
+        <button className="mx-4" onClick={leaveHandler}>
+          <FaArrowLeft className="text-gray-100 text-xl" />
+        </button>
+
+        <h1 className="font-bold text-2xl text-gray-200 mx-4">Room id: {id}</h1>
       </div>
 
       <div className="w-full h-4/5 border-2 border-opacity-30 rounded-xl my-3 hover:border-opacity-60">
