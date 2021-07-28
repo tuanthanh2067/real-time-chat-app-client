@@ -1,9 +1,9 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { FaPaperPlane, FaArrowLeft } from "react-icons/fa";
+import SocketIoClient from "socket.io-client";
 
 import { UserContext } from "../context/userContext";
-import { SocketContext } from "../context/socketContext";
 
 import Message from "./Message";
 
@@ -12,7 +12,8 @@ export default function ChatRoom() {
   const [messages, setMessages] = useState([]);
 
   const { userId } = useContext(UserContext);
-  const socket = useContext(SocketContext);
+
+  const socket = useRef();
 
   const history = useHistory();
 
@@ -20,16 +21,18 @@ export default function ChatRoom() {
 
   useEffect(() => {
     if (userId && id) {
-      socket.emit("join", { userId: userId, roomId: id });
+      socket.current = SocketIoClient(process.env.REACT_APP_API_URL);
 
-      socket.on("notification", ({ title }) => {
+      socket.current.emit("join", { userId: userId, roomId: id });
+
+      socket.current.on("notification", ({ title }) => {
         setMessages((messages) => [
           ...messages,
           { userId: "admin", text: title },
         ]);
       });
 
-      socket.on("message", ({ userId, text }) => {
+      socket.current.on("message", ({ userId, text }) => {
         setMessages((messages) => [
           ...messages,
           { userId: userId, text: text },
@@ -37,7 +40,7 @@ export default function ChatRoom() {
       });
 
       return () => {
-        socket.emit("leave");
+        socket.current.close();
       };
     }
   }, [socket, id, userId]);
@@ -46,13 +49,12 @@ export default function ChatRoom() {
     e.preventDefault();
 
     if (message.trim(" ") === "") return;
-    socket.emit("message", { message: message });
+    socket.current.emit("message", { message: message });
 
     setMessage("");
   };
 
   const leaveHandler = () => {
-    socket.emit("leave");
     history.push("/");
   };
 
