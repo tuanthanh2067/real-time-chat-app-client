@@ -1,5 +1,5 @@
 import { FaUserCircle } from "react-icons/fa";
-import { useState, useEffect, useRef, useContext } from "react";
+import { useState, useEffect, useRef, useContext, useCallback } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 
@@ -15,12 +15,7 @@ export default function Home() {
   const timer = useRef();
   const history = useHistory();
 
-  const startHandler = () => {
-    setClicked((prevState) => !prevState);
-  };
-
-  // get user id from server
-  useEffect(() => {
+  const signUpUser = useCallback(() => {
     axios
       .get("/user/sign-up")
       .then((res) => {
@@ -30,6 +25,19 @@ export default function Home() {
         console.log(err);
       });
   }, [setUserId]);
+
+  const startHandler = () => {
+    setClicked((prevState) => !prevState);
+  };
+
+  const resetHandler = () => {
+    signUpUser();
+  };
+
+  // get user id from server
+  useEffect(() => {
+    signUpUser();
+  }, [signUpUser]);
 
   useEffect(() => {
     setCounter(0);
@@ -88,6 +96,15 @@ export default function Home() {
           onClick={startHandler}
         >
           {clicked ? "Stop" : "Start"}
+        </button>
+      </div>
+
+      <div>
+        <button
+          className="font-bold text-gray-100 text-xl hover:text-purple-500"
+          onClick={resetHandler}
+        >
+          Reset
         </button>
       </div>
 
