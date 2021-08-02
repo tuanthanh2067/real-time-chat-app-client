@@ -92,8 +92,11 @@ export default function Home() {
             clicked
               ? "border-purple-500 text-purple-500"
               : "border-gray-100 text-gray-100"
-          } text-3xl font-bold rounded-full hover:border-purple-500 hover:text-purple-500`}
+          } text-3xl font-bold rounded-full hover:border-purple-500 hover:text-purple-500 ${
+            counter < 2 && "disabled:opacity-20"
+          }`}
           onClick={startHandler}
+          disabled={counter < 2 && clicked ? true : false}
         >
           {clicked ? "Stop" : "Start"}
         </button>
