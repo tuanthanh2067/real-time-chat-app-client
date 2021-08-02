@@ -5,6 +5,7 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import axios from "axios";
 import { BrowserRouter } from "react-router-dom";
+import { UserProvider } from "./context/userContext";
 
 axios.defaults.baseURL = `${process.env.REACT_APP_API_URL}/api`;
 axios.defaults.headers.post["Content-Type"] =
@@ -13,7 +14,9 @@ axios.defaults.headers.post["Content-Type"] =
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <UserProvider>
+        <App />
+      </UserProvider>
     </BrowserRouter>
   </React.StrictMode>,
   document.getElementById("root")

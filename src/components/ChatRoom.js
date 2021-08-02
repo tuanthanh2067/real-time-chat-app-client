@@ -1,7 +1,8 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import { FaPaperPlane, FaArrowLeft } from "react-icons/fa";
 import SocketIoClient from "socket.io-client";
+import axios from "axios";
 
 import { UserContext } from "../context/userContext";
 
@@ -19,8 +20,23 @@ export default function ChatRoom() {
 
   let { id } = useParams();
 
+  const deleteUser = useCallback(() => {
+    if (userId) {
+      axios
+        .delete(`/user/delete/${userId}`)
+        .then(() => {})
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [userId]);
+
   useEffect(() => {
     if (userId && id) {
+      window.addEventListener("beforeunload", () => {
+        deleteUser();
+      });
+
       socket.current = SocketIoClient(process.env.REACT_APP_API_URL);
 
       socket.current.emit("join", { userId: userId, roomId: id });
@@ -41,9 +57,11 @@ export default function ChatRoom() {
 
       return () => {
         socket.current.close();
+
+        deleteUser();
       };
     }
-  }, [socket, id, userId]);
+  }, [socket, id, userId, deleteUser]);
 
   const submitHandler = (e) => {
     e.preventDefault();
